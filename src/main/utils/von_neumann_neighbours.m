@@ -1,4 +1,4 @@
-function [ neighbours ] = von_neumann_neighbours(linear_index , size ,influence_parameter, influence_probability);
+function [ agent ] = von_neumann_neighbours(linear_index , size ,influence_parameter, influence_probability);
     
     n_row = size(1);
     n_col = size(2);
@@ -8,14 +8,14 @@ function [ neighbours ] = von_neumann_neighbours(linear_index , size ,influence_
        influence_parameter = 0; 
     end
     
-    neighbours(1).position = [shift_position(x,n_col,@(x) x-1), y];    
-    neighbours(2).position = [shift_position(x,n_col,@(x) x+1), y];    
-    neighbours(3).position = [x, shift_position(y,n_row,@(y) y-1)];   
-    neighbours(4).position = [x, shift_position(y,n_row,@(y) y+1)];
+    agent(1).position = [shift_position(x,n_col,@(x) x-1), y];    
+    agent(2).position = [shift_position(x,n_col,@(x) x+1), y];    
+    agent(3).position = [x, shift_position(y,n_row,@(y) y-1)];   
+    agent(4).position = [x, shift_position(y,n_row,@(y) y+1)];
     
-    for i=1:1:length(neighbours)
-       neighbours(i).index = sub2ind(size, neighbours(i).position(1), neighbours(i).position(2));
-       neighbours(i).influence_parameter = influence_parameter;
+    for i=1:1:length(agent)
+       agent(i).index = sub2ind(size, agent(i).position(1), agent(i).position(2));
+       agent(i).influence_parameter = influence_parameter;
     end
     
 
