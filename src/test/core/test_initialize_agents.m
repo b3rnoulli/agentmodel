@@ -6,28 +6,28 @@ end
 function test_fixed_influence(testCase)
 params = initialize_params();
 
-agents = initialize_agents(params.size, params.sim_length,params.agent_start_balance, ...
+[balances, stocks, signal, signal_param, signal_generator, threshold, state, neighbours] = initialize_agents(params.size, params.sim_length,params.agent_start_balance, ...
     params.agent_start_stocks, params.agent_signal_param, params.agent_signal_generator, ...
     params.influence_parameter, params.influence_probability, params.symetrical_influence);
-    
-    check_basic_agent_params(testCase, agents, params);
-    
-    verifyEqual(testCase, size(agents.balances,3), params.sim_length);
-    verifyEqual(testCase, size(agents.stocks,3), params.sim_length);
-    verifyEqual(testCase, size(agents.threshold,3), params.sim_length);
-    verifyEqual(testCase, size(agents.state,3), params.sim_length);
+
+check_basic_agent_params(testCase, balances, stocks, signal_param, params);
+
+verifyEqual(testCase, size(balances,3), params.sim_length);
+verifyEqual(testCase, size(stocks,3), params.sim_length);
+verifyEqual(testCase, size(threshold,3), params.sim_length);
+verifyEqual(testCase, size(state,3), params.sim_length);
 end
 
 function test_symetrical_influence(testCase)
 params = initialize_params();
 params.influence_probability = .3;
 
-agents = initialize_agents(params.size, params.sim_length,params.agent_start_balance, ...
+[balances, stocks, signal, signal_param, signal_generator, threshold, state, neighbours] = initialize_agents(params.size, params.sim_length,params.agent_start_balance, ...
     params.agent_start_stocks, params.agent_signal_param, params.agent_signal_generator, ...
     params.influence_parameter, params.influence_probability, 1);
 
-check_basic_agent_params(testCase, agents, params);
-check_influence_parameters(testCase, agents);
+check_basic_agent_params(testCase, balances, stocks, signal_param, params);
+check_influence_parameters(testCase, neighbours);
 
 end
 
@@ -44,31 +44,31 @@ params.symetrical_influence = 0;
 end
 
 
-function check_basic_agent_params(testCase, agents, params)
-for i=1:1:size(agents,1)
-    verifyEqual(testCase,agents.balances(i),params.agent_start_balance);
-    verifyEqual(testCase,agents.stocks(i),params.agent_start_stocks);
-    verifyEqual(testCase,agents.signal_param(i),params.agent_signal_param);  
+function check_basic_agent_params(testCase, balances, stocks, signal_param, params)
+for i=1:1:size(balances,1)*size(balances,2)
+    verifyEqual(testCase,balances(i),params.agent_start_balance);
+    verifyEqual(testCase,stocks(i),params.agent_start_stocks);
+    verifyEqual(testCase,signal_param(i),params.agent_signal_param);
 end
 end
 
-function check_influence_parameters(testCase, agents)
-for i=1:1:size(agents,2)    
+function check_influence_parameters(testCase, neighbours)
+for i=1:1:size(neighbours,2)*size(neighbours,1)
     verifyEqual(testCase, ...
-    agents.neighbours(agents.neighbours(i).elements(1).index).elements(2).influence_parameter, ...
-    agents.neighbours(i).elements(1).influence_parameter);
-
+        neighbours(neighbours(i).elements(1).index).elements(2).influence_parameter, ...
+        neighbours(i).elements(1).influence_parameter);
+    
     verifyEqual(testCase, ...
-    agents.neighbours(agents.neighbours(i).elements(2).index).elements(1).influence_parameter, ...
-    agents.neighbours(i).elements(2).influence_parameter);
-        
+        neighbours(neighbours(i).elements(2).index).elements(1).influence_parameter, ...
+        neighbours(i).elements(2).influence_parameter);
+    
     verifyEqual(testCase, ...
-    agents.neighbours(agents.neighbours(i).elements(3).index).elements(4).influence_parameter, ...
-    agents.neighbours(i).elements(3).influence_parameter);
-
+        neighbours(neighbours(i).elements(3).index).elements(4).influence_parameter, ...
+        neighbours(i).elements(3).influence_parameter);
+    
     verifyEqual(testCase, ...
-    agents.neighbours(agents.neighbours(i).elements(4).index).elements(3).influence_parameter, ...
-    agents.neighbours(i).elements(4).influence_parameter);  
+        neighbours(neighbours(i).elements(4).index).elements(3).influence_parameter, ...
+        neighbours(i).elements(4).influence_parameter);
 end
 
 end

@@ -1,6 +1,6 @@
 clear
 clc
-sim_length = 10000; % dlugosc symulacji
+sim_length = 100; % dlugosc symulacji
 starting_price = 1; % cena poczatkowa
 agent_start_balance = 100; % poczatkowy balance agenta
 agent_start_stocks = 100; % poczatkowe akcje agenta
@@ -13,37 +13,40 @@ alpha_function = @(param,volumen,grid_size) volume_depend_alpha_func(param, volu
 influence_parameter = 1;
 influence_probability= 1;
 symetrical_influence = 1;
-grid.size = [100, 100]; % rozmiar siatki
+grid_size = [100, 100]; % rozmiar siatki
 
 %inicjalizacja siatki
-grid.agents = initialize_agents(grid.size, sim_length, agent_start_balance,...
+[balances, stocks, signal, signal_param, signal_generator, threshold, state, neighbours] = initialize_agents(grid_size, sim_length, agent_start_balance,...
     agent_start_stocks, agent_signal_param, agent_signal_generator, ...
     influence_parameter, influence_probability, symetrical_influence);
-market_maker = initialize_market_maker(sim_length, grid.size, starting_price);
+market_maker = initialize_market_maker(sim_length, grid_size, starting_price);
 
-[market_maker, grid.agents.balances(:,:,1), grid.agents.stocks(:,:,1), grid.agents.state(:,:,1), supply, demand] ...
-    =  fill_orders(1,market_maker,grid.agents.balances(:,:,1), grid.agents.stocks(:,:,1), grid.agents.state(:,:,1));
+[market_maker, balances(:,:,1), stocks(:,:,1), state(:,:,1), supply, demand] ...
+    =  fill_orders(1,market_maker,balances(:,:,1), stocks(:,:,1), state(:,:,1));
 
-[market_maker.volumen(2), market_maker.price(2)] = update_price(market_maker, 2, supply, demand, alpha_function, alpha_func_param, grid.size);
+[market_maker.volumen(2), market_maker.price(2)] = update_price(market_maker, 2, supply, demand, alpha_function, alpha_func_param, grid_size);
 
- grid.agents.balances(:,:,2)= grid.agents.balances(:,:,1);
- grid.agents.stocks(:,:,2)= grid.agents.stocks(:,:,1);
+ balances(:,:,2)= balances(:,:,1);
+ stocks(:,:,2)= stocks(:,:,1);
 
 for i = 2:1:sim_length
-    grid.agents.threshold(:,:,i) = update_agent_threshold(grid.agents.threshold(:,:,i-1), [market_maker.price(i), market_maker.price(i-1)]);
-    grid.agents.signal(:,:,i) = update_agent_signal(agent_signal_param, agent_signal_generator, grid.size);
+    threshold(:,:,i) = update_agent_threshold(threshold(:,:,i-1), [market_maker.price(i), market_maker.price(i-1)]);
+    signal(:,:,i) = update_agent_signal(agent_signal_param, agent_signal_generator, grid_size);
     
-    [grid.agents.state(:,:,i) ] = place_orders(grid.agents.threshold(:,:,i),  grid.agents.signal(:,:,i));
+    [state(:,:,i) ] = place_orders(threshold(:,:,i),  signal(:,:,i));
     
-    [grid.agents.state(:,:,i)] = consultate_orders(place_orders(grid.agents.threshold(:,:,i), grid.agents.signal(:,:,i)),...
-        grid.agents.neighbours, grid.agents.signal(:,:,i), grid.agents.threshold(:,:,i));
+    [state(:,:,i)] = consultate_orders(place_orders(threshold(:,:,i), signal(:,:,i)),...
+        neighbours, signal(:,:,i), threshold(:,:,i));
     
-    [market_maker, grid.agents.balances(:,:,i), grid.agents.stocks(:,:,i), grid.agents.state(:,:,i), supply, demand] ...
-    =  fill_orders(i,market_maker,grid.agents.balances(:,:,i), grid.agents.stocks(:,:,i), grid.agents.state(:,:,i));
+    [market_maker, balances(:,:,i), stocks(:,:,i), state(:,:,i), supply, demand] ...
+    =  fill_orders(i,market_maker,balances(:,:,i), stocks(:,:,i), state(:,:,i));
     
-    grid.agents.balances(:,:,i+1)= grid.agents.balances(:,:,i);
-    grid.agents.stocks(:,:,i+1)= grid.agents.stocks(:,:,i);
+    balances(:,:,i+1)= balances(:,:,i);
+    stocks(:,:,i+1)= stocks(:,:,i);
     
-    [market_maker.volumen(i+1), market_maker.price(i+1)] = update_price(market_maker, i+1, supply, demand, alpha_function, alpha_func_param, grid.size);
-    fprintf('Step %d done. Price = %d, market balance = %.2f, market stocks = %.2f \n',i,market_maker.price(i), market_maker.balance(i), market_maker.stocks(i));
+    [market_maker.volumen(i+1), market_maker.price(i+1)] = update_price(market_maker, i+1, supply, demand, alpha_function, alpha_func_param, grid_size);
+    fprintf('Step %d done. Supply = %d, demand = %d, Price = %d, market balance = %.2f, market stocks = %.2f \n',i,supply, demand, market_maker.price(i), market_maker.balance(i), market_maker.stocks(i));
 end
+
+
+save('test','market_maker', '-v7.3');
