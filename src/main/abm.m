@@ -1,6 +1,7 @@
 clear
 clc
-sim_length = 100; % dlugosc symulacji
+tic
+sim_length = 10000; % dlugosc symulacji
 starting_price = 1; % cena poczatkowa
 agent_start_balance = 100; % poczatkowy balance agenta
 agent_start_stocks = 100; % poczatkowe akcje agenta
@@ -13,12 +14,13 @@ alpha_function = @(param,volumen,grid_size) volume_depend_alpha_func(param, volu
 influence_parameter = 1;
 influence_probability= 1;
 symetrical_influence = 1;
+preserve_memory = 0;
 grid_size = [100, 100]; % rozmiar siatki
 
 %inicjalizacja siatki
 [balances, stocks, signal, signal_param, signal_generator, threshold, state, neighbours] = initialize_agents(grid_size, sim_length, agent_start_balance,...
     agent_start_stocks, agent_signal_param, agent_signal_generator, ...
-    influence_parameter, influence_probability, symetrical_influence);
+    influence_parameter, influence_probability, symetrical_influence, preserve_memory);
 market_maker = initialize_market_maker(sim_length, grid_size, starting_price);
 
 [market_maker, balances(:,:,1), stocks(:,:,1), state(:,:,1), supply, demand] ...
@@ -50,3 +52,4 @@ end
 
 
 save('test','market_maker', '-v7.3');
+toc
