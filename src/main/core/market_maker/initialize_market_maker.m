@@ -1,6 +1,6 @@
 function [ market_maker ] = initialize_market_maker(sim_length, size, starting_price)
     
-    m = 10;
+    m = 100;
     starting_balance = m * size(1)*size(2);
 
     market_maker.balance = initialize_array_field(sim_length, starting_balance*starting_price);

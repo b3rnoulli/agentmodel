@@ -7,8 +7,9 @@ function test_fixed_influence(testCase)
 params = initialize_params();
 
 [balances, stocks, signal, signal_param, signal_generator, threshold, state, neighbours] = initialize_agents(params.size, params.sim_length,params.agent_start_balance, ...
-    params.agent_start_stocks, params.agent_signal_param, params.agent_signal_generator, ...
-    params.influence_parameter, params.influence_probability, params.symetrical_influence);
+    params.agent_start_stocks, params.agent_signal_param, params.agent_signal_generator,...
+    params.signal_generator_params,...
+    params.influence_parameter, params.influence_probability, params.symetrical_influence, 0);
 
 check_basic_agent_params(testCase, balances, stocks, signal_param, params);
 
@@ -23,8 +24,9 @@ params = initialize_params();
 params.influence_probability = .3;
 
 [balances, stocks, signal, signal_param, signal_generator, threshold, state, neighbours] = initialize_agents(params.size, params.sim_length,params.agent_start_balance, ...
-    params.agent_start_stocks, params.agent_signal_param, params.agent_signal_generator, ...
-    params.influence_parameter, params.influence_probability, 1);
+    params.agent_start_stocks, params.agent_signal_param, params.agent_signal_generator,...
+    params.signal_generator_params,...
+    params.influence_parameter, params.influence_probability, 1, 0);
 
 check_basic_agent_params(testCase, balances, stocks, signal_param, params);
 check_influence_parameters(testCase, neighbours);
@@ -37,7 +39,8 @@ params.size = [10, 10];
 params.agent_start_balance = 100;
 params.agent_start_stocks = 10;
 params.agent_signal_param = 2;
-params.agent_signal_generator = @() uniform_generator;
+params.agent_signal_generator = @uniform_generator;
+params.signal_generator_params = 0;
 params.influence_parameter = 1;
 params.influence_probability = 1;
 params.symetrical_influence = 0;

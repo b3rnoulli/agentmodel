@@ -1,5 +1,5 @@
 function [balances, stocks, signal, signal_param, signal_generator, threshold, state, neighbours] = initialize_agents(size, sim_length, agent_start_balance, ...
-    agent_start_stocks, agent_signal_param, agent_signal_generator, ...
+    agent_start_stocks, agent_signal_param, agent_signal_generator, signal_generator_params, ...
     influence_parameter, influence_probability, symetrical_influence, preserve_memory_mode)
 
 isposint = @(x)( ~isnumeric(x) | isinteger(x) ...
@@ -25,7 +25,7 @@ else
     state = zeros(size(1),size(2), sim_length);
 end
 for i=1:1:size(1)*size(2)
-    signal(i) = agent_signal_generator()*signal_param(i);
+    signal(i) = (agent_signal_generator(0,signal_generator_params))*signal_param(i);
     [x, y] = ind2sub([size(1) size(2)],i);
     neighbours(x,y).elements =  von_neumann_neighbours(i, size, influence_parameter, influence_probability);
 end
