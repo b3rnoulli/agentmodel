@@ -5,7 +5,7 @@ starting_price = 1; % cena poczatkowa
 agent_start_balance = 500; % poczatkowy balance agenta
 agent_start_stocks = 500; % poczatkowe akcje agenta
 agent_signal_params = 0.2; % parametr A sygnalu losowego agenta
-generator_params = 0;
+generator_params = 0.3;
 agent_signal_generator = @ar1_generator; % handler do generatora sygna³u agenta
 
 alpha_func_param = 1;

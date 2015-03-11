@@ -35,7 +35,7 @@ market_maker = initialize_market_maker(sim_length, grid_size, starting_price);
 for i = 2:1:sim_length
     threshold(:,:,i) = update_agent_threshold(threshold(:,:,i-1), [market_maker.price(i), market_maker.price(i-1)]);
     signal(:,:,i) = update_agent_signal(agent_signal_param, agent_signal_generator,generator_params, signal(:,:,i-1), grid_size);
-    
+
     [state(:,:,i) ] = place_orders(threshold(:,:,i),  signal(:,:,i));
     
     [state(:,:,i)] = consultate_orders(place_orders(threshold(:,:,i), signal(:,:,i)),...
