@@ -1,10 +1,15 @@
 function cdf_plotter(price, offset, data_name)
 
 lrr = zscore(diff(log(price)));
-
+figure
 [y,x] = ecdf(abs(lrr));
 loglog(x,1-y);
 hold on;
+data_name = strrep(data_name,'_','-');
+title(['1-CDF ',data_name])
+xlim([0.2,100]);
+ylim([10^-5,1]);
+saveas(gcf,['1-CDF ',data_name],'png');
 
 x_cutted = x(offset:end);
 y_cutted = y(offset:end);
@@ -21,16 +26,12 @@ try
 x_fit = 0.1:0.1:100;
 y_fit = coeffs(1)*(1./((x_fit).^(coeffs(2))));
 plot(x_fit,y_fit);
-legend('Data', ['y ={',coeffs(1),'}/{x^{',coeffs(2),'}}']);
+legend('Data', ['y ={',num2str(coeffs(1)),'}/{x^{',num2str(coeffs(2)),'}}']);
 catch
 end
 
-xlim([0.2,100]);
-ylim([10^-5,1]);
 
 
-
-title(['1-CDF ',data_name])
-saveas(gcf,['1-CDF ',data_name],'png');
+saveas(gcf,['1-CDF ',data_name,'_fitted'],'png');
 end
 

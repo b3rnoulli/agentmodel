@@ -9,7 +9,7 @@ params = initialize_params();
 [balances, stocks, signal, signal_param, signal_generator, threshold, state, neighbours] = initialize_agents(params.size, params.sim_length,params.agent_start_balance, ...
     params.agent_start_stocks, params.agent_signal_param, params.agent_signal_generator,...
     params.signal_generator_params,...
-    params.influence_parameter, params.influence_probability, params.symetrical_influence, 0);
+    params.influence_parameter, params.influence_probability, params.symetrical_influence, 0, 0);
 
 check_basic_agent_params(testCase, balances, stocks, signal_param, params);
 
@@ -26,12 +26,26 @@ params.influence_probability = .3;
 [balances, stocks, signal, signal_param, signal_generator, threshold, state, neighbours] = initialize_agents(params.size, params.sim_length,params.agent_start_balance, ...
     params.agent_start_stocks, params.agent_signal_param, params.agent_signal_generator,...
     params.signal_generator_params,...
-    params.influence_parameter, params.influence_probability, 1, 0);
+    params.influence_parameter, params.influence_probability, 1, 0, 0);
 
 check_basic_agent_params(testCase, balances, stocks, signal_param, params);
 check_influence_parameters(testCase, neighbours);
 
 end
+
+function test_provided_signal(testCase)
+params = initialize_params();
+params.influence_probability = .3;
+
+[balances, stocks, signal, signal_param, signal_generator, threshold, state, neighbours] = initialize_agents(params.size, params.sim_length,params.agent_start_balance, ...
+    params.agent_start_stocks, params.agent_signal_param, params.agent_signal_generator,...
+    params.signal_generator_params,...
+    params.influence_parameter, params.influence_probability, 1, 0, 1);
+
+    verifyEqual(testCase,size(signal,3), params.sim_length);
+    verifyEqual(testCase,isempty(find(signal == 0)), true);
+end
+
 
 function [params] = initialize_params()
 params.sim_length = 1000;

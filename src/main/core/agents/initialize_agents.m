@@ -1,6 +1,6 @@
 function [balances, stocks, signal, signal_param, signal_generator, threshold, state, neighbours] = initialize_agents(size, sim_length, agent_start_balance, ...
     agent_start_stocks, agent_signal_param, agent_signal_generator, signal_generator_params, ...
-    influence_parameter, influence_probability, symetrical_influence, preserve_memory_mode)
+    influence_parameter, influence_probability, symetrical_influence, preserve_memory_mode, provided_signal)
 
 isposint = @(x)( ~isnumeric(x) | isinteger(x) ...
                  | ~all(isfinite(x(:))) ...
@@ -24,9 +24,15 @@ else
     threshold = zeros(size(1),size(2), sim_length);
     state = zeros(size(1),size(2), sim_length);
 end
+
+
 for i=1:1:size(1)*size(2)
-    signal(i) = (agent_signal_generator(0,signal_generator_params))*signal_param(i);
-    [x, y] = ind2sub([size(1) size(2)],i);
+    [x, y] = ind2sub([size(1) size(2)],i);  
+    if provided_signal == 1
+        signal(x,y,:) = (agent_signal_generator(sim_length+1,signal_generator_params))*signal_param(i);; 
+    else
+        signal(i) = (agent_signal_generator(0,signal_generator_params))*signal_param(i);
+    end
     neighbours(x,y).elements =  von_neumann_neighbours(i, size, influence_parameter, influence_probability);
 end
 [balances(:,:,1), stocks(:,:,1), state(:,:,1), threshold(:,:,1)] = initialize_first_step(size, agent_start_balance, agent_start_stocks, signal(:,:,1));

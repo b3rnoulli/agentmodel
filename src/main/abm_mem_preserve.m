@@ -7,6 +7,7 @@ agent_start_stocks = 500; % poczatkowe akcje agenta
 agent_signal_params = 0.2; % parametr A sygnalu losowego agenta
 generator_params = 0.3;
 agent_signal_generator = @ar1_generator; % handler do generatora sygna³u agenta
+provided_signal = 0;
 
 alpha_func_param = 1;
 alpha_function = @(param,volumen,grid_size) volume_depend_alpha_func(param, volumen, grid_size);
@@ -15,13 +16,13 @@ influence_parameter = 1;
 influence_probability= 1;
 symetrical_influence = 1;
 preserve_memory = 1;
-grid_size = [50, 50]; % rozmiar siatki
+grid_size = [100, 100]; % rozmiar siatki
 
 %inicjalizacja siatki
 [balances, stocks, signal, signal_param, signal_generator, threshold, state, neighbours]...
     = initialize_agents(grid_size, sim_length, agent_start_balance,...
     agent_start_stocks, agent_signal_params, agent_signal_generator,generator_params, ...
-    influence_parameter, influence_probability, symetrical_influence, 1);
+    influence_parameter, influence_probability, symetrical_influence, 1, provided_signal);
 market_maker = initialize_market_maker(sim_length, grid_size, preserve_memory);
 
 [market_maker, balances(:,:,1), stocks(:,:,1), state(:,:,1), supply, demand] ...
