@@ -21,7 +21,7 @@ end
 
 function test_symetrical_influence(testCase)
 params = initialize_params();
-params.influence_probability = .3;
+params.influence_probability = 0.3;
 
 [balances, stocks, signal, signal_param, signal_generator, threshold, state, neighbours] = initialize_agents(params.size, params.sim_length,params.agent_start_balance, ...
     params.agent_start_stocks, params.agent_signal_param, params.agent_signal_generator,...
@@ -30,7 +30,13 @@ params.influence_probability = .3;
 
 check_basic_agent_params(testCase, balances, stocks, signal_param, params);
 check_influence_parameters(testCase, neighbours);
-
+sum = 0;
+for i=1:1:params.size(1)*params.size(2)
+    for j=1:1:4
+         sum = sum + neighbours(i).elements(j).influence_parameter;
+    end
+end
+verifyEqual(testCase, abs(sum-params.size(1)*params.size(2)*params.influence_probability*4) < 15, true);
 end
 
 function test_provided_signal(testCase)
@@ -42,8 +48,8 @@ params.influence_probability = .3;
     params.signal_generator_params,...
     params.influence_parameter, params.influence_probability, 1, 0, 1);
 
-    verifyEqual(testCase,size(signal,3), params.sim_length);
-    verifyEqual(testCase,isempty(find(signal == 0)), true);
+verifyEqual(testCase,size(signal,3), params.sim_length);
+verifyEqual(testCase,isempty(find(signal == 0)), true);
 end
 
 

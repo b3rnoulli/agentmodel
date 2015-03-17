@@ -15,7 +15,11 @@ signal_generator = agent_signal_generator;
 signal_param = ones(size(1),size(2)) * agent_signal_param;
 
 if preserve_memory_mode == 1
-    signal = zeros(size(1),size(2),2);
+    if provided_signal == 1
+        signal = zeros(size(1),size(2),sim_length);
+    else
+        signal = zeros(size(1),size(2),2);
+    end
     threshold = zeros(size(1),size(2),2);
 else
     balances = zeros(size(1),size(2), sim_length);
@@ -24,12 +28,11 @@ else
     threshold = zeros(size(1),size(2), sim_length);
     state = zeros(size(1),size(2), sim_length);
 end
-
-
 for i=1:1:size(1)*size(2)
+    fprintf('Initializing agent %d\n',i);
     [x, y] = ind2sub([size(1) size(2)],i);  
     if provided_signal == 1
-        signal(x,y,:) = (agent_signal_generator(sim_length+1,signal_generator_params))*signal_param(i);; 
+        signal(x,y,:) = (agent_signal_generator(sim_length+1,signal_generator_params))*signal_param(i);
     else
         signal(i) = (agent_signal_generator(0,signal_generator_params))*signal_param(i);
     end
@@ -41,7 +44,13 @@ end
 % symetrycznym ? tzn jesli a na b = 1 ale b na a = 0 to ktora strone
 % powinna byc symetryzacja?
 if symetrical_influence == 1
-   for i=1:1:(size(1)*size(2))
+   for i=1:2:(size(1)*size(2))
+       neighbours(i).elements(1).influence_parameter = neighbours(neighbours(i).elements(1).index).elements(2).influence_parameter;
+       neighbours(i).elements(2).influence_parameter = neighbours(neighbours(i).elements(2).index).elements(1).influence_parameter;
+       neighbours(i).elements(3).influence_parameter = neighbours(neighbours(i).elements(3).index).elements(4).influence_parameter;
+       neighbours(i).elements(4).influence_parameter = neighbours(neighbours(i).elements(4).index).elements(3).influence_parameter;
+   end
+   for i=2:2:(size(1)*size(2))
        neighbours(i).elements(1).influence_parameter = neighbours(neighbours(i).elements(1).index).elements(2).influence_parameter;
        neighbours(i).elements(2).influence_parameter = neighbours(neighbours(i).elements(2).index).elements(1).influence_parameter;
        neighbours(i).elements(3).influence_parameter = neighbours(neighbours(i).elements(3).index).elements(4).influence_parameter;
