@@ -57,11 +57,28 @@ end
 
 
 function [market_maker, balances, stocks, states] = initialize()
-sim_length = 1000;
-starting_price = 1;
-grid.size = [10 10];
-market_maker = initialize_market_maker(sim_length, grid.size, starting_price);
-balances = ones(grid.size)*100;
-stocks = ones(grid.size)*100;
-states = randi([-1, 1], grid.size);
+%% simulation params
+params.simulation_length = 1000; 
+params.grid_size = [50 50];
+params.starting_price = 1;
+
+%% agents params
+params.agent_start_balance = 100;
+params.agent_start_stocks = 100;
+params.alpha_func_param = 1;
+params.generator_name = 'uniform';
+params.agent_signal_generator = @uniform_generator; % handler do generatora sygna³u agenta
+params.signal_generator_params = [];
+
+params.signal_param = 1; % A
+params.influence_parameter = 1; % J
+params.influence_probability= 1; % p
+
+%% market maker params
+params.m = 100; % market maker multiplier param (balance (stocks) = m * agents_count)
+
+market_maker = init_market_maker(params);
+balances = ones(params.grid_size)*100;
+stocks = ones(params.grid_size)*100;
+states = randi([-1, 1], params.grid_size);
 end

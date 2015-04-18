@@ -19,15 +19,26 @@ function test_symetrical_influence(testCase)
 params = initialize_params();
 params.influence_probability = 0.3;
 
-[balances, stocks, signal, threshold, state, neighbours] = init_agents_memory_preserve(params);
-
-sum = 0;
-for i=1:1:params.grid_size(1)*params.grid_size(2)
-    for j=1:1:4
-         sum = sum + neighbours(i).elements(j).influence_parameter;
+sum = zeros(1,20);
+for k = 1:1:20
+    [balances, stocks, signal, threshold, state, neighbours] = init_agents_memory_preserve(params);
+    
+    for i=1:1:params.grid_size(1)*params.grid_size(2)
+        verifyEqual(testCase, neighbours(i).elements(1).influence_parameter, neighbours(neighbours(i).elements(1).index).elements(2).influence_parameter);
+        verifyEqual(testCase, neighbours(i).elements(2).influence_parameter, neighbours(neighbours(i).elements(2).index).elements(1).influence_parameter);
+        verifyEqual(testCase, neighbours(i).elements(3).influence_parameter, neighbours(neighbours(i).elements(3).index).elements(4).influence_parameter);
+        verifyEqual(testCase, neighbours(i).elements(4).influence_parameter, neighbours(neighbours(i).elements(4).index).elements(3).influence_parameter);
+    end
+    
+    
+    for i=1:1:params.grid_size(1)*params.grid_size(2)
+        for j=1:1:4
+            sum(k) = sum(k) + neighbours(i).elements(j).influence_parameter;
+        end
     end
 end
-verifyEqual(testCase, abs(sum-params.grid_size(1)*params.grid_size(2)*params.influence_probability*4) < 20, true);
+
+verifyEqual(testCase, abs(mean(sum)-params.grid_size(1)*params.grid_size(2)*params.influence_probability*4) < 20, true);
 end
 
 
