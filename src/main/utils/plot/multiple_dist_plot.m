@@ -1,15 +1,26 @@
 
-folder_name = 'C:\Users\Kowalski\Documents\MATLAB\Agent-based-model\wyniki\uniform\p1_j1_a005-05';
+clear;
+clc;
+file_list = struct('name','');
+p=1;
+j=1;
+a = 0.1:0.1:1;
+h = 0.3;
 
-file_list = dir(folder_name);
-file_list(1:2) = [];
+for i=1:1:size(a,2)
+    file_list(i).name = ['abm_wfbm_p',strrep(num2str(p),'.',''),...
+        '_j',strrep(num2str(j),'.',''),...
+        '_a',strrep(num2str(a(i)),'.',''),...
+        '_h',strrep(num2str(h),'.',''),'.mat']; 
+end
+
+
 figure
 legend_elements = struct('name','');
-colors = ['y','']
-for i=1:1:size(file_list,1)
-    data = load([folder_name,'\',file_list(i).name]);
+for i=1:1:size(file_list,2)
+    data = load(file_list(i).name);
     lrr = zscore(diff(log(data.market_maker.price)));    
-    [y,x] = ecdf(abs(lrr));
+    [y,x] = ecdf(abs(lrr(3000:end)));
     loglog(x,1-y);
     legend_elements(i).name = strrep(strrep(file_list(i).name,'.mat',''),'_','-');
     hold on;

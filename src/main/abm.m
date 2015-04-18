@@ -1,46 +1,44 @@
 clear
 clc
-tic
-sim_length = 50000; % dlugosc symulacji
-starting_price = 1; % cena poczatkowa
-agent_start_balance = 100; % poczatkowy balance agenta
-agent_start_stocks = 100; % poczatkowe akcje agenta
-agent_signal_param = 0.2; % parametr A sygnalu losowego agenta
-generator_params = 0;
-agent_signal_generator = @uniform_generator; % handler do generatora sygna³u agenta
-provided_signal = 0;
 
-alpha_func_param = 1;
-alpha_function = @(param,volumen,grid_size) volume_depend_alpha_func(param, volumen, grid_size);
+agent_params.influence_parameter = 1;
+agent_params.influence_probability= 1;
+agent_params.signal_param = 0.2;
 
-influence_parameter = 1;
-influence_probability= 1;
-symetrical_influence = 1;
-preserve_memory = 0;
-grid_size = [100, 100]; % rozmiar siatki
+agent_params.simulation_name = ['abm_uniform_p',strrep(num2str(agent_params.influence_probability),'.',''),...
+    '_j',strrep(num2str(agent_params.influence_parameter),'.',''),...
+    '_a',strrep(num2str(agent_params.signal_param),'.','')]; % nazwa symulacji
+agent_params.sim_length = 100000; % dlugosc symulacji
+agent_params.size = [100, 100];
+agent_params.memory_preserve = 1; % parametr okreslajacy sposób przechowywania danych
+agent_params.starting_price = 1; % cena poczatkowa
+agent_params.agent_start_balance = 100; % poczatkowy balance agenta
+agent_params.agent_start_stocks = 100; % poczatkowe akcje agenta
+agent_params.signal_param = ones(agent_params.size).*agent_params.signal_param; % parametr A sygnalu losowego agenta
+agent_params.signal_generator_params = 0;
+agent_params.agent_signal_generator = @uniform_generator; % handler do generatora sygna³u agenta
+agent_params.correlated_signal = 0;
+agent_params.signal_matfile = 0;
+agent_params.alpha_func_param = 1;
+
+alpha_function = @(param,volumen,grid_size) volume_depend_alpha_func(param, volumen, agent_params.size);
 
 %inicjalizacja siatki
-[balances, stocks, signal, signal_param, signal_generator, threshold, state, neighbours] = initialize_agents(grid_size, sim_length, agent_start_balance,...
-    agent_start_stocks, agent_signal_param, agent_signal_generator, generator_params, ...
-    influence_parameter, influence_probability, symetrical_influence, preserve_memory, provided_signal);
-market_maker = initialize_market_maker(sim_length, grid_size, starting_price);
+[balances, stocks, signal_m, threshold, state, neighbours] = initialize_agents(agent_params);
+market_maker = initialize_market_maker(agent_params.sim_length, agent_params.size, agent_params.starting_price);
 
 [market_maker, balances(:,:,1), stocks(:,:,1), state(:,:,1), supply, demand] ...
     =  fill_orders(1,market_maker,balances(:,:,1), stocks(:,:,1), state(:,:,1));
 
-[market_maker.volumen(2), market_maker.price(2)] = update_price(market_maker, 2, supply, demand, alpha_function, alpha_func_param, grid_size);
+[market_maker.volumen(2), market_maker.price(2)] = update_price(market_maker, 2, supply, demand, alpha_function, agent_params.alpha_func_param, agent_params.size);
 
  balances(:,:,2)= balances(:,:,1);
  stocks(:,:,2)= stocks(:,:,1);
 
-for i = 2:1:sim_length
-    threshold(:,:,i) = update_agent_threshold(threshold(:,:,i-1), [market_maker.price(i), market_maker.price(i-1)]);
-    signal(:,:,i) = update_agent_signal(agent_signal_param, agent_signal_generator,generator_params, signal(:,:,i-1), grid_size);
-
-    [state(:,:,i) ] = place_orders(threshold(:,:,i),  signal(:,:,i));
-    
-    [state(:,:,i)] = consultate_orders(place_orders(threshold(:,:,i), signal(:,:,i)),...
-        neighbours, signal(:,:,i), threshold(:,:,i));
+for i = 2:1:agent_params.sim_length
+    threshold(:,:,i) = update_agent_threshold(threshold(:,:,i-1), [market_maker.price(i), market_maker.price(i-1)]);    
+    state(:,:,i) = consultate_orders(place_orders(threshold(:,:,i), signal_m.signal(:,:,i)),...
+        neighbours, signal_m.signal(:,:,i), threshold(:,:,i));
     
     [market_maker, balances(:,:,i), stocks(:,:,i), state(:,:,i), supply, demand] ...
     =  fill_orders(i,market_maker,balances(:,:,i), stocks(:,:,i), state(:,:,i));
@@ -48,10 +46,8 @@ for i = 2:1:sim_length
     balances(:,:,i+1)= balances(:,:,i);
     stocks(:,:,i+1)= stocks(:,:,i);
     
-    [market_maker.volumen(i+1), market_maker.price(i+1)] = update_price(market_maker, i+1, supply, demand, alpha_function, alpha_func_param, grid_size);
+    [market_maker.volumen(i+1), market_maker.price(i+1)] = update_price(market_maker, i+1, supply, demand, alpha_function, agent_params.alpha_func_param, agent_params.size);
     fprintf('Step %d done. Supply = %d, demand = %d, Price = %d, market balance = %.2f, market stocks = %.2f \n',i,supply, demand, market_maker.price(i), market_maker.balance(i), market_maker.stocks(i));
 end
 
-
-save('test','market_maker', '-v7.3');
-toc
+save(agent_params.simulation_name,'market_maker','balances','stocks','threshold','state', '-v7.3');

@@ -1,4 +1,4 @@
-function [val] = ar1_generator(prev_value, generator_params)
-    val = generator_params(1).*prev_value + randn(size(prev_value));
+function [val] = ar1_generator(sim_length, generator_params)
+    model = arima('Constant',0,'AR',{generator_params},'Variance',1);
+    val = simulate(model,sim_length)
 end
-

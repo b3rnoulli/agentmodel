@@ -8,7 +8,7 @@ hold on;
 data_name = strrep(data_name,'_','-');
 title(['1-CDF ',data_name])
 xlim([0.2,100]);
-ylim([10^-5,1]);
+ylim([10^-4,1]);
 saveas(gcf,['1-CDF ',data_name],'png');
 
 x_cutted = x(offset:end);

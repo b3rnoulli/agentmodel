@@ -15,9 +15,9 @@ while has_changed > 0
         
         if(current_states(i) ~= states(i))
             has_changed = has_changed + 1;
-            states(i) = current_states(i);
         end
     end
+    states = current_states;
 end
 fprintf('Covergence after %d steps\n', round_counter);
 end
